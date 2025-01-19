@@ -5,11 +5,10 @@ services:
     build:
       context: ./services/data-access-api
       dockerfile: data-access.Dockerfile
-    image: stockappr.azurecr.io/homework4-data-access-api:latest 
     ports:
       - "8081:8081"
     volumes:
-      - ./database:/usr/src/app/database 
+      - /efs/database:/usr/src/app/database  # Use EFS for persistent storage in AWS
     networks:
       - backend
     environment:
@@ -19,11 +18,10 @@ services:
     build:
       context: ./services/metrics-access-api
       dockerfile: metrics-access.Dockerfile
-    image: stockappr.azurecr.io/homework4-metrics-access-api:latest
     ports:
       - "8082:8082"
     volumes:
-      - ./database:/usr/src/app/database 
+      - /efs/database:/usr/src/app/database
     networks:
       - backend
 
@@ -31,31 +29,28 @@ services:
     build:
       context: ./services/prediction-access-api
       dockerfile: prediction-access.Dockerfile
-    image: stockappr.azurecr.io/homework4-prediction-access-api:latest
     ports:
       - "8084:8084"
     volumes:
-      - ./database:/usr/src/app/database 
+      - /efs/database:/usr/src/app/database
     networks:
       - backend
 
   sentimet-access-api:
     build:
       context: ./services/sentimets-access-api
-      dockerfile: sentiment-access.Dockerfile 
-    image: stockappr.azurecr.io/homework4-sentimet-access-api:latest
+      dockerfile: sentiment-access.Dockerfile
     ports:
       - "8083:8083"
     volumes:
-      - ./database:/usr/src/app/database
+      - /efs/database:/usr/src/app/database
     networks:
       - backend
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: frontend.Dockerfile 
-    image: stockappr.azurecr.io/homework4-frontend:latest
+      dockerfile: frontend.Dockerfile
     ports:
       - "3000:3000"
     networks:
@@ -66,21 +61,20 @@ services:
     build:
       context: ./python/scripts
       dockerfile: scripts.Dockerfile
-    image: stockappr.azurecr.io/homework4-python-scripts:latest
     networks:
       - backend
     command: "python fetch_issuer_links.py && python scraper.py && python metrics_computer.py && python calculate_performance_metrics.py && python news_sentiments.py && python PricePredictor.py"
     volumes:
-      - ./database:/usr/src/app/database 
+      - /efs/database:/usr/src/app/database  # Use EFS for persistent storage
+
   database-service:
     build:
       context: .
       dockerfile: database.Dockerfile
-    image: stockappr.azurecr.io/homework4-database-service:latest  
     networks:
       - backend
     volumes:
-      - ./database:/usr/src/app/database 
+      - /efs/database:/usr/src/app/database  # Use EFS for persistent storage
 
 networks:
   backend:
@@ -90,4 +84,4 @@ networks:
 
 volumes:
   database:
-    driver: local 
+    external: true  # Using external volume for EFS (Elastic File System)
