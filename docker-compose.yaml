@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  data-access-api:
+    build:
+      context: ./services/data-access-api
+      dockerfile: data-access.Dockerfile
+    image: stockappr.azurecr.io/homework4-data-access-api:latest 
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+    environment:
+      - REACT_APP_API_BASE_URL=http://data-access-api:8081
+
+  metrics-access-api:
+    build:
+      context: ./services/metrics-access-api
+      dockerfile: metrics-access.Dockerfile
+    image: stockappr.azurecr.io/homework4-metrics-access-api:latest
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+
+  prediction-access-api:
+    build:
+      context: ./services/prediction-access-api
+      dockerfile: prediction-access.Dockerfile
+    image: stockappr.azurecr.io/homework4-prediction-access-api:latest
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./database:/usr/src/app/database 
+    networks:
+      - backend
+
+  sentimet-access-api:
+    build:
+      context: ./services/sentimets-access-api
+      dockerfile: sentiment-access.Dockerfile 
+    image: stockappr.azurecr.io/homework4-sentimet-access-api:latest
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./database:/usr/src/app/database
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.Dockerfile 
+    image: stockappr.azurecr.io/homework4-frontend:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+
+  python-scripts:
+    build:
+      context: ./python/scripts
+      dockerfile: scripts.Dockerfile
+    image: stockappr.azurecr.io/homework4-python-scripts:latest
+    networks:
+      - backend
+    command: "python fetch_issuer_links.py && python scraper.py && python metrics_computer.py && python calculate_performance_metrics.py && python news_sentiments.py && python PricePredictor.py"
+    volumes:
+      - ./database:/usr/src/app/database 
+  database-service:
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    image: stockappr.azurecr.io/homework4-database-service:latest  
+    networks:
+      - backend
+    volumes:
+      - ./database:/usr/src/app/database 
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+
+volumes:
+  database:
+    driver: local 

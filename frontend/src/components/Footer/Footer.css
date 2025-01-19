@@ -1,0 +1,17 @@
+.footer-container {
+    padding: 40px 20px;
+    background: #222;
+    color: #fff;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.footer-contact p {
+    margin: 5px 0;
+}
+
+.footer-copy {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #aaa;
+}
