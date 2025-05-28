@@ -36,6 +36,3 @@ The project is built with:
     - User-friendly interface for visualizing stock data and analyses.
     - Makes API requests to the Java backend.
 
-# Design Patterns
-
-Refer to the attached **Design Patterns.pdf** file.
